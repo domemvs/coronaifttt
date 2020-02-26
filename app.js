@@ -41,6 +41,10 @@ const getAllInfections = async () => {
   }
 };
 
+const log = (...args) => {
+  console.log.apply(null, [`[${new Date()}]`, ...args]);
+};
+
 const getDataFromDisk = async () => {
   try {
     const fileContents = await readFile('./data.txt', 'utf8');
@@ -55,7 +59,7 @@ const writeDataToDisk = async (data) => {
   try {
     await writeFile('./data.txt', JSON.stringify(data), 'utf8');
   } catch (error) {
-    console.log(error);
+    log(error);
   }
 };
 
@@ -69,22 +73,22 @@ const sendNotification = async (data) => {
       body: JSON.stringify(data),
     });
     const result = await response.text();
-    console.log('notification sent with following result:', result);
+    log('notification sent with following result:', result);
     return true;
   } catch (error) {
-    console.log(error);
+    log(error);
     return null;
   }
 };
 
 const runJob = async () => {
-  console.log('running job');
+  log('running job');
   try {
     const cachedData = await getDataFromDisk();
     const newData = await getAllInfections();
 
     if (JSON.stringify(cachedData) === JSON.stringify(newData)) {
-      console.log('no new data found');
+      log('no new data found');
       return null;
     }
 
@@ -111,7 +115,7 @@ const runJob = async () => {
     await Promise.all(notificationPromises);
     await writeDataToDisk(newData);
   } catch (error) {
-    console.log(error);
+    log(error);
     return null;
   }
 };
