@@ -11,34 +11,25 @@ const writeFile = promisify(fs.writeFile);
 
 const SOURCE_URL = 'https://bnonews.com/index.php/2020/02/the-latest-coronavirus-cases/';
 const NOTIFICATION_URL = `https://maker.ifttt.com/trigger/corona_de/with/key/${process.env.IFTTT_KEY}`;
+const COUNTRIES = ['Germany', 'Italy', 'France'];
 
-const getCoronaInfections = async (country) => {
+const getAllInfections = async (countries) => {
   const response = await fetch(SOURCE_URL);
   const html = await response.text();
   const $ = cheerio.load(html);
-  const dataRow = $(`table.wp-block-table.is-style-regular tr:contains("${country}") td`);
-  const data = {
-    country: dataRow[0].children[0].data,
-    infections: parseInt(dataRow[1].children[0].data, 10),
-    deaths: parseInt(dataRow[2].children[0].data, 10),
-  };
-  return data;
-};
+  const allData = {};
 
-const getAllInfections = async () => {
-  try {
-    const germanData = await getCoronaInfections('Germany');
-    const italianData = await getCoronaInfections('Italy');
-    const frenchData = await getCoronaInfections('France');
-    return {
-      germany: germanData,
-      italy: italianData,
-      france: frenchData,
+  countries.forEach((country) => {
+    const dataRow = $(`table.wp-block-table.is-style-regular tr:contains("${country}") td`);
+    const data = {
+      country: dataRow[0].children[0].data,
+      infections: parseInt(dataRow[1].children[0].data, 10),
+      deaths: parseInt(dataRow[2].children[0].data, 10),
     };
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
+    allData[country.toLowerCase()] = data;
+  });
+
+  return allData;
 };
 
 const log = (...args) => {
@@ -85,10 +76,11 @@ const runJob = async () => {
   log('running job');
   try {
     const cachedData = await getDataFromDisk();
-    const newData = await getAllInfections();
+    const newData = await getAllInfections(COUNTRIES);
 
     if (JSON.stringify(cachedData) === JSON.stringify(newData)) {
       log('no new data found');
+      await writeDataToDisk(newData);
       return null;
     }
 
@@ -123,3 +115,5 @@ const runJob = async () => {
 schedule.scheduleJob('0,30 * * * *', async () => {
   await runJob();
 });
+
+runJob();
