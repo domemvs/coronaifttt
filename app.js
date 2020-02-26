@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+/* eslint-disable consistent-return,no-console */
 require('dotenv').config();
 const cheerio = require('cheerio');
 const fetch = require('node-fetch');
@@ -37,8 +37,8 @@ const getAllInfections = async () => {
     };
   } catch (error) {
     console.log(error);
+    return null;
   }
-  return null;
 };
 
 const getDataFromDisk = async () => {
@@ -47,8 +47,8 @@ const getDataFromDisk = async () => {
     return JSON.parse(fileContents);
   } catch (error) {
     console.log(error);
+    return null;
   }
-  return null;
 };
 
 const writeDataToDisk = async (data) => {
@@ -78,6 +78,7 @@ const sendNotification = async (data) => {
 };
 
 const runJob = async () => {
+  console.log('running job');
   try {
     const cachedData = await getDataFromDisk();
     const newData = await getAllInfections();
@@ -98,21 +99,17 @@ const runJob = async () => {
     });
 
     const notificationPromises = [];
-
     needNotification.forEach((country) => {
       const dataToSend = {
         value1: newData[country].country.toString(),
         value2: newData[country].infections.toString(),
         value3: newData[country].deaths.toString(),
       };
-      console.log(dataToSend);
       notificationPromises.push(sendNotification(dataToSend));
     });
 
     await Promise.all(notificationPromises);
     await writeDataToDisk(newData);
-    console.log('done');
-    return true;
   } catch (error) {
     console.log(error);
     return null;
