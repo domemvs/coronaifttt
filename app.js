@@ -116,4 +116,8 @@ schedule.scheduleJob('0,30 * * * *', async () => {
   await runJob();
 });
 
-runJob();
+if (process.env.RUN_NOW === 'yes') {
+  (async () => {
+    await runJob();
+  })();
+}
