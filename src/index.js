@@ -14,13 +14,12 @@ const {
 const COUNTRIES = ['Germany', 'Italy', 'France'];
 
 const runJob = async () => {
-  log('running job');
   try {
     const cachedData = await getDataFromDisk('data.txt');
     const newData = await getAllInfections(COUNTRIES);
 
     if (JSON.stringify(cachedData) === JSON.stringify(newData)) {
-      log('no new data found');
+      log('no new data found...aborting');
       await writeDataToDisk('data.txt', newData);
       return null;
     }
@@ -39,18 +38,22 @@ const runJob = async () => {
 
     await Promise.all(notificationPromises);
     await writeDataToDisk('data.txt', newData);
-    log('job finished');
+    log(`Sent ${notificationPromises.length} notifications to IFTTT!`);
   } catch (error) {
     log(error);
   }
 };
 
 schedule.scheduleJob('0,30 * * * *', async () => {
+  log('starting job');
   await runJob();
+  log('finished job');
 });
 
 if (process.env.RUN_NOW === 'yes') {
   (async () => {
+    log('manual run');
     await runJob();
+    log('manual run finished');
   })();
 }
