@@ -1,1 +1,1 @@
-{"germany":{"country":"Germany","infections":19,"deaths":0},"italy":{"country":"Italy","infections":374,"deaths":12},"france":{"country":"France","infections":17,"deaths":2}}
+{"germany":{"country":"Germany","infections":27,"deaths":0},"italy":{"country":"Italy","infections":453,"deaths":12},"france":{"country":"France","infections":18,"deaths":2}}
