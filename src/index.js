@@ -11,6 +11,7 @@ const {
   getDataToSend,
 } = require('./notification');
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const COUNTRIES = ['Germany', 'Italy', 'France'];
 
 const runJob = async () => {
@@ -26,12 +27,16 @@ const runJob = async () => {
     }
 
     const needNotification = getCountriesThatNeedNotification(cachedData, newData);
-
     const notificationPromises = [];
-    needNotification.forEach((country) => {
-      const dataToSend = getDataToSend(country, newData);
+    let dataToSend = {};
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const country of needNotification) {
+      dataToSend = getDataToSend(country, newData);
       notificationPromises.push(sendNotification(dataToSend));
-    });
+      // eslint-disable-next-line no-await-in-loop
+      await sleep(5000);
+    }
 
     await Promise.all(notificationPromises);
     await writeDataToDisk('data.txt', newData);
