@@ -39,10 +39,10 @@ const runJob = async () => {
 
     await Promise.all(notificationPromises);
     await writeDataToDisk('data.txt', newData);
+    log('job finished');
   } catch (error) {
     log(error);
   }
-  log('job finished');
 };
 
 schedule.scheduleJob('0,30 * * * *', async () => {
