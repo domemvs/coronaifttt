@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { promisify } = require('util');
-const log = require('./log');
+const { log } = require('./helper');
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);

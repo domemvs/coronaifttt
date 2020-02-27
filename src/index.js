@@ -2,7 +2,7 @@
 
 require('dotenv').config();
 const schedule = require('node-schedule');
-const log = require('./log');
+const { log, sleep } = require('./helper');
 const { getDataFromDisk, writeDataToDisk } = require('./cache');
 const { getAllInfections } = require('./infections');
 const {
@@ -11,7 +11,6 @@ const {
   getDataToSend,
 } = require('./notification');
 
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const COUNTRIES = ['Germany', 'Italy', 'France'];
 
 const runJob = async () => {

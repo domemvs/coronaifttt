@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const log = require('./log');
+const { log } = require('./helper');
 
 const NOTIFICATION_URL = `https://maker.ifttt.com/trigger/corona_de/with/key/${process.env.IFTTT_KEY}`;
 
