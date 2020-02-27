@@ -1,6 +1,8 @@
 const fetch = require('node-fetch');
 const log = require('./log');
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 const NOTIFICATION_URL = `https://maker.ifttt.com/trigger/corona_de/with/key/${process.env.IFTTT_KEY}`;
 
 const sendNotification = async (data) => {
@@ -14,6 +16,7 @@ const sendNotification = async (data) => {
     });
     const result = await response.text();
     log('notification sent with following result:', result);
+    await sleep(5000);
     return true;
   } catch (error) {
     log(error);
