@@ -41,8 +41,8 @@ const runJob = async () => {
     await writeDataToDisk('data.txt', newData);
   } catch (error) {
     log(error);
-    return null;
   }
+  log('job finished');
 };
 
 schedule.scheduleJob('0,30 * * * *', async () => {
