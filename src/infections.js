@@ -13,8 +13,8 @@ const getAllInfections = async (countries) => {
     const dataRow = $(`table.wp-block-table.is-style-regular tr:contains("${country}") td`);
     const data = {
       country: dataRow[0].children[0].data,
-      infections: parseInt(dataRow[1].children[0].data, 10),
-      deaths: parseInt(dataRow[2].children[0].data, 10),
+      infections: parseInt(dataRow[1].children[0].data.replace(',', ''), 10),
+      deaths: parseInt(dataRow[2].children[0].data.replace(',', ''), 10),
     };
     allData[country.toLowerCase()] = data;
   });
