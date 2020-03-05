@@ -23,14 +23,15 @@ const sendNotification = async (data) => {
 
 const getCountriesThatNeedNotification = (cachedData, newData) => {
   const needNotification = [];
-  Object.keys(cachedData).forEach((key) => {
+  cachedData.forEach((cachedCountryData) => {
     if (
-      newData[key].infections !== cachedData[key].infections
-          || newData[key].deaths !== cachedData[key].deaths
+      newData[cachedCountryData.country].infections !== cachedCountryData.infections
+          || newData[cachedCountryData.country].deaths !== cachedCountryData.deaths
     ) {
-      needNotification.push(key);
+      needNotification.push(cachedCountryData.country);
     }
   });
+
 
   return needNotification;
 };

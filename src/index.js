@@ -1,27 +1,32 @@
-/* eslint-disable consistent-return,no-console */
-
+/* eslint-disable consistent-return */
 require('dotenv').config();
 const schedule = require('node-schedule');
 const { log, sleep } = require('./helper');
-const { getDataFromDisk, writeDataToDisk } = require('./cache');
+// const { getDataFromDisk, writeDataToDisk } = require('./cache');
 const { getAllInfections } = require('./infections');
 const {
   sendNotification,
   getCountriesThatNeedNotification,
   getDataToSend,
 } = require('./notification');
+const {
+  db, getCachedInfections, saveInfections,
+} = require('./db');
 
 const COUNTRIES = ['Germany', 'Italy', 'France'];
 
 const runJob = async () => {
   try {
-    const cachedData = await getDataFromDisk('data.txt');
+    const cachedData = await getCachedInfections();
     const newData = await getAllInfections(COUNTRIES);
+    const hasNewData = cachedData.some(
+      (cachedCountry) => cachedCountry.infections !== newData[cachedCountry.country].infections
+       || cachedCountry.deaths !== newData[cachedCountry.country].deaths,
+    );
 
-    if (JSON.stringify(cachedData) === JSON.stringify(newData)) {
-      log('no new data found...aborting');
-      await writeDataToDisk('data.txt', newData);
-      return null;
+    if (!hasNewData) {
+      log('no new data found');
+      return false;
     }
 
     const needNotification = getCountriesThatNeedNotification(cachedData, newData);
@@ -37,23 +42,30 @@ const runJob = async () => {
     }
 
     await Promise.all(notificationPromises);
-    await writeDataToDisk('data.txt', newData);
+    await saveInfections(newData);
     log(`Sent ${notificationPromises.length} notifications to IFTTT!`);
   } catch (error) {
     log(error);
   }
 };
 
-schedule.scheduleJob('0,30 * * * *', async () => {
-  log('starting job');
-  await runJob();
-  log('finished job');
-});
-
-if (process.env.RUN_NOW === 'yes') {
-  (async () => {
-    log('manual run');
+const start = () => {
+  schedule.scheduleJob('0,30 * * * *', async () => {
+    log('starting job');
     await runJob();
-    log('manual run finished');
-  })();
-}
+    log('finished job');
+  });
+};
+
+
+db.once('open', async () => {
+  log('DB connected');
+  start();
+  if (process.env.RUN_NOW === 'yes') {
+    (async () => {
+      log('manual run');
+      await runJob();
+      log('manual run finished');
+    })();
+  }
+});

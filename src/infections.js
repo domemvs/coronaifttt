@@ -16,7 +16,7 @@ const getAllInfections = async (countries) => {
       infections: parseInt(dataRow[1].children[0].data.replace(',', ''), 10),
       deaths: parseInt(dataRow[2].children[0].data.replace(',', ''), 10),
     };
-    allData[country.toLowerCase()] = data;
+    allData[country] = data;
   });
 
   return allData;
