@@ -13,11 +13,11 @@ const {
   db, getCachedInfections, saveInfections,
 } = require('./db');
 
-const COUNTRIES = ['Germany', 'Italy', 'France'];
+const COUNTRIES = ['Germany', 'Italy'];
 
 const runJob = async () => {
   try {
-    const cachedData = await getCachedInfections();
+    const cachedData = await getCachedInfections(COUNTRIES);
     const newData = await getAllInfections(COUNTRIES);
     const hasNewData = cachedData.some(
       (cachedCountry) => cachedCountry.infections !== newData[cachedCountry.country].infections

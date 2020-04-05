@@ -14,7 +14,9 @@ mongoose.connect(process.env.MONGO_CONN_STRING, {
 
 db.on('error', () => log('error connecting to db'));
 
-const getCachedInfections = async () => Infection.find({});
+const getCachedInfections = async (countries) => Infection.find({
+  country: { $in: countries },
+});
 
 const saveInfection = (country, infections, deaths) => Infection.updateOne({ country }, {
   infections,
